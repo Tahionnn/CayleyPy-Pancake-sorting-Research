@@ -1,0 +1,16 @@
+[project]
+name = "cayleypy-pancake-sorting-research"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "cayleypy",
+    "ipykernel>=7.0.1",
+    "pandas>=2.3.3",
+    "seaborn>=0.13.2",
+    "tqdm>=4.67.1",
+]
+
+[tool.uv.sources]
+cayleypy = { git = "https://github.com/cayleypy/cayleypy" }

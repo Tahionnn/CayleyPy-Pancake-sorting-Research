@@ -1,0 +1,58 @@
+name: Format code
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '**.py'
+  push:
+    paths:
+      - '**.py'
+      
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-format-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-format-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black isort autoflake
+
+    - name: Auto-format code
+      run: |
+        black --verbose .
+        isort --verbose .
+        autoflake --in-place --remove-all-unused-imports --ignore-init-module-imports --remove-unused-variables --recursive .
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add .
+        if ! git diff --staged --quiet; then
+          git commit -m "style: Auto-format code"
+          git push
+        else
+          echo "No changes to commit"
+        fi
